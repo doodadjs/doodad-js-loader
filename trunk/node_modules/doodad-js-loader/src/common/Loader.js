@@ -1,5 +1,5 @@
-//! REPLACE_BY("// Copyright 2015 Claude Petit, licensed under Apache License version 2.0\n")
-// dOOdad - Object-oriented programming framework with some extras
+//! REPLACE_BY("// Copyright 2016 Claude Petit, licensed under Apache License version 2.0\n")
+// dOOdad - Object-oriented programming framework
 // File: Loader.js - Optional Loader
 // Project home: https://sourceforge.net/projects/doodad-js/
 // Trunk: svn checkout svn://svn.code.sf.net/p/doodad-js/code/trunk doodad-js-code
@@ -8,7 +8,7 @@
 // Note: I'm still in alpha-beta stage, so expect to find some bugs or incomplete parts !
 // License: Apache V2
 //
-//	Copyright 2015 Claude Petit
+//	Copyright 2016 Claude Petit
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 	var global = this;
 
 	var exports = {};
-	if (global.process) {
+	if (typeof process === 'object') {
 		module.exports = exports;
 	};
 	
@@ -35,7 +35,7 @@
 		DD_MODULES = (DD_MODULES || {});
 		DD_MODULES['Doodad.Loader'] = {
 			type: null,
-			version: '0a',
+			version: '0b',
 			namespaces: null,
 			dependencies: ['Doodad.Namespaces'],
 			proto: null,
@@ -53,26 +53,34 @@
 					namespaces = doodad.Namespaces;
 						
 				//===================================
-				// Loader options
-				//===================================
-				loader.options = types.depthExtend(1, {
-					// Settings
-					settings: {
-						defaultAsync: true,
-					},
-				}, _options);
-				
-				loader.options.settings.defaultAsync = types.toBoolean(loader.options.settings.defaultAsync);
-				
-				//===================================
 				// Internals
 				//===================================
 				// <FUTURE> Thread context
 				var __Internal__ = {
 					lastEx: null,		// <FUTURE> global for every thread
 					evalCache: null,	// <FUTURE> global for every thread
+					oldSetOptions: null,
 				};
 
+				//===================================
+				// Loader options
+				//===================================
+				__Internal__.oldSetOptions = loader.setOptions;
+				loader.setOptions = function setOptions(/*paramarray*/) {
+					var options = __Internal__.oldSetOptions.apply(this, arguments),
+						settings = types.getDefault(options, 'settings', {});
+						
+					settings.defaultAsync = types.toBoolean(types.get(settings, 'defaultAsync'));
+				};
+				
+				loader.setOptions({
+					// Settings
+					settings: {
+						defaultAsync: true,
+					},
+				}, _options);
+				
+				
 				//===================================
 				// Events
 				//===================================
@@ -127,7 +135,7 @@
 							__Internal__.lastEx = ex;
 						};
 						
-						if (!(val instanceof Promise)) {
+						if (!tools.isPromise(val)) {
 							val = Promise.resolve(val);
 						};
 						
@@ -198,7 +206,7 @@
 							__Internal__.lastEx = ex;
 						};
 						
-						if (!(val instanceof Promise)) {
+						if (!tools.isPromise(val)) {
 							val = Promise.resolve(val);
 						};
 						
@@ -253,7 +261,7 @@
 							return Promise.resolve(false);
 						};
 						
-						if (val instanceof Promise) {
+						if (tools.isPromise(val)) {
 							return val
 								.then(function() {
 									return doInitializers(initializers);
@@ -386,7 +394,7 @@
 											url = null;
 										};
 									};
-									if (!(url instanceof Promise)) {
+									if (!tools.isPromise(url)) {
 										url = Promise.resolve(url);
 									};
 									var promise = (function(promise, dependencyScript) {
@@ -423,7 +431,7 @@
 													dirChar: ['/', '\\'],
 												});
 
-												url = url.combine(file);
+												url = url.set({file: null}).combine(file);
 
 												var scriptLoader = null;
 												var scriptType = (dependencyScript.fileType || 'js');
@@ -514,7 +522,7 @@
 					reload = !!reload;
 					
 					if (types.isNothing(async)) {
-						async = !!loader.options.settings.defaultAsync;
+						async = !!loader.getOptions().settings.defaultAsync;
 					} else {
 						async = !!async;
 					};
@@ -604,8 +612,8 @@
 		return DD_MODULES;
 	};
 
-	if (!global.process) {
+	if (typeof process !== 'object') {
 		// <PRB> export/import are not yet supported in browsers
 		global.DD_MODULES = exports.add(global.DD_MODULES);
 	};
-})();
+}).call((typeof global !== 'undefined') ? global : ((typeof window !== 'undefined') ? window : this));
