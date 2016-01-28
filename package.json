@@ -1,6 +1,6 @@
 {
   "name": "doodad-js-loader",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "\"doodad-js\" Loader (beta)",
   "homepage": "https://sourceforge.net/projects/doodad-js/",
   "main": "index.js",
@@ -17,7 +17,9 @@
     "make.json",
     "config.json",
     "README",
-    "LICENSE"
+    "LICENSE",
+	"browserify.js",
+	"tonic.js"
   ],
   "scripts": {
     "prepublish": "node -r \"doodad-js-make/make.js\" . make",
@@ -30,7 +32,7 @@
   "author": "Claude Petit <doodadjs@gmail.com> (https://sourceforge.net/projects/doodad-js/)",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=4.2.0 <5.4.0"
+    "node": ">=4.2.0 <6.0.0"
   },
   "repository": {
     "type": "svn",
@@ -41,9 +43,11 @@
     "email": "doodadjs@gmail.com"
   },
   "dependencies": {
-    "doodad-js": "^1.0.0"
+    "doodad-js": "^1.1.0"
   },
   "devDependencies": {
-    "doodad-js-make": "^0.1.0"
-  }
+    "doodad-js-make": "^0.2.0"
+  },
+  "tonicExampleFilename": "tonic.js",
+  "browser": "./browserify.js"
 }
