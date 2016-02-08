@@ -1,6 +1,6 @@
 {
   "name": "doodad-js-loader",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "\"doodad-js\" Loader (beta)",
   "homepage": "https://sourceforge.net/projects/doodad-js/",
   "main": "index.js",
@@ -43,7 +43,7 @@
     "email": "doodadjs@gmail.com"
   },
   "dependencies": {
-    "doodad-js": "^1.1.0"
+    "doodad-js": "^1.2.0"
   },
   "devDependencies": {
     "doodad-js-make": "^0.2.0"
