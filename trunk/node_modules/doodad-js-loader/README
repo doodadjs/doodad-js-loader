@@ -49,13 +49,14 @@ Then load 'doodad-js-loader' and its dependencies :
 ```js
     const modules = {};
     require('doodad-js-io').add(modules);
+    require('doodad-js-safeeval').add(modules);
     require('doodad-js-loader').add(modules);
     
     function startup() {
         // your code here...
     };
     
-    namespaces.loadNamespaces(startup, false, null, modules);
+    namespaces.loadNamespaces(modules, startup);
 ```
 
 ## Example

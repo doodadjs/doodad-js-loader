@@ -35,9 +35,16 @@
 		DD_MODULES = (DD_MODULES || {});
 		DD_MODULES['Doodad.Loader'] = {
 			type: null,
-			version: '0b',
+			version: '0.2.0b',
 			namespaces: null,
-			dependencies: ['Doodad.Namespaces'],
+			dependencies: [
+				'Doodad.Tools.Files',
+				{
+					name: 'Doodad.Tools.SafeEval',
+					version: '0.1.0',
+				},
+				'Doodad.Namespaces',
+			],
 			proto: null,
 			
 			create: function create(root, /*optional*/_options) {
@@ -50,6 +57,8 @@
 					loader = doodad.Loader,
 					types = doodad.Types,
 					tools = doodad.Tools,
+					files = tools.Files,
+					safeEval = tools.SafeEval,
 					namespaces = doodad.Namespaces;
 						
 				//===================================
@@ -96,7 +105,7 @@
 				//===================================
 				
 				__Internal__.initScripts = function initScripts(before, scripts) {
-					var Promise = tools.getPromise();
+					var Promise = types.getPromise();
 					
 					function doExcludes(exclude) {
 						if (!exclude.length) {
@@ -110,11 +119,11 @@
 							if (types.isObject(expr)) {
 								var thisObj = expr.thisObj;
 								if (types.isString(thisObj)) {
-									thisObj = tools.safeEvalCached(__Internal__.evalCache, thisObj, {root: root}, null, true);
+									thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root}, null, true);
 								};
 								val = expr._function;
 								if (types.isString(val)) {
-									val = tools.safeEvalCached(__Internal__.evalCache, val, {root: root}, null, true);
+									val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true);
 								};
 								if (types.isFunction(val)) {
 									val = val.call(thisObj, root);
@@ -122,7 +131,7 @@
 							} else {
 								val = expr;
 								if (types.isString(val)) {
-									val = tools.safeEvalCached(__Internal__.evalCache, val, {root: root}, null, true);
+									val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true);
 								};
 								if (types.isFunction(val)) {
 									val = val.call(undefined, root);
@@ -135,7 +144,7 @@
 							__Internal__.lastEx = ex;
 						};
 						
-						if (!tools.isPromise(val)) {
+						if (!types.isPromise(val)) {
 							val = Promise.resolve(val);
 						};
 						
@@ -181,11 +190,11 @@
 							if (types.isObject(expr)) {
 								thisObj = expr.thisObj;
 								if (types.isString(thisObj)) {
-									thisObj = tools.safeEvalCached(__Internal__.evalCache, thisObj, {root: root}, null, true, false);
+									thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root}, null, true, false);
 								};
 								val = expr._function;
 								if (types.isString(val)) {
-									val = tools.safeEvalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+									val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
 								};
 								if (types.isFunction(val)) {
 									val = val.call(thisObj, root);
@@ -193,7 +202,7 @@
 							} else {
 								val = expr;
 								if (types.isString(val)) {
-									val = tools.safeEvalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+									val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
 								};
 								if (types.isFunction(val)) {
 									val = val.call(undefined, root);
@@ -206,7 +215,7 @@
 							__Internal__.lastEx = ex;
 						};
 						
-						if (!tools.isPromise(val)) {
+						if (!types.isPromise(val)) {
 							val = Promise.resolve(val);
 						};
 						
@@ -232,11 +241,11 @@
 							if (types.isObject(expr)) {
 								var thisObj = expr.thisObj;
 								if (types.isString(thisObj)) {
-									thisObj = tools.safeEvalCached(__Internal__.evalCache, thisObj, {root: root}, null, true, false);
+									thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root}, null, true, false);
 								};
 								val = expr._function;
 								if (types.isString(val)) {
-									val = tools.safeEvalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+									val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
 								};
 								if (types.isFunction(val)) {
 									val = val.call(thisObj, root);
@@ -244,7 +253,7 @@
 							} else {
 								val = expr;
 								if (types.isString(val)) {
-									val = tools.safeEvalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+									val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
 								};
 								if (types.isFunction(val)) {
 									val = val.call(undefined, root);
@@ -261,7 +270,7 @@
 							return Promise.resolve(false);
 						};
 						
-						if (tools.isPromise(val)) {
+						if (types.isPromise(val)) {
 							return val
 								.then(function() {
 									return doInitializers(initializers);
@@ -355,7 +364,7 @@
 				};
 				
 				__Internal__.loadMissings = function loadMissings(before, scripts, reload, async) {
-					var Promise = tools.getPromise();
+					var Promise = types.getPromise();
 
 					var promises = [];
 						
@@ -394,7 +403,7 @@
 											url = null;
 										};
 									};
-									if (!tools.isPromise(url)) {
+									if (!types.isPromise(url)) {
 										url = Promise.resolve(url);
 									};
 									var promise = (function(promise, dependencyScript) {
@@ -414,19 +423,19 @@
 											};
 											if (url && file) {
 												if (types.isString(url)) {
-													var tmp = tools.Url.parse(url);
+													var tmp = files.Url.parse(url);
 													if (!tmp.protocol) {
-														tmp = tools.Path.parse(url);
+														tmp = files.Path.parse(url);
 													};
 													url = tmp;
 												};
 
 												if (root.DD_ASSERT) {
-													root.DD_ASSERT && root.DD_ASSERT(types._instanceof(url, [tools.Url, tools.Path]), "Invalid url.");
+													root.DD_ASSERT && root.DD_ASSERT(types._instanceof(url, [files.Url, files.Path]), "Invalid url.");
 													root.DD_ASSERT && root.DD_ASSERT(types.isString(file), "Invalid file.");
 												};
 												
-												file = tools.Path.parse(file, {
+												file = files.Path.parse(file, {
 													isRelative: true, // force relative
 													dirChar: ['/', '\\'],
 												});
@@ -508,16 +517,10 @@
 					});
 				};
 				
-				loader.loadScripts = function loadScripts(/*optional*/scripts, /*optional*/reload, /*optional*/async) {
-					var Promise = tools.getPromise();
+				loader.loadScripts = function loadScripts(scripts, /*optional*/reload, /*optional*/async) {
+					var Promise = types.getPromise();
 
-					if (types.isNothing(scripts)) {
-						scripts = global.DD_SCRIPTS;
-					} else if (scripts !== global.DD_SCRIPTS) {
-						types.prepend(scripts, global.DD_SCRIPTS);
-					};
 					root.DD_ASSERT && root.DD_ASSERT(types.isArray(scripts), 'Invalid scripts array.');
-					global.DD_SCRIPTS = [];
 					
 					reload = !!reload;
 					
@@ -532,10 +535,10 @@
 
 					function loopScripts() {
 						if (!scripts.length) {
-							return namespaces.loadNamespaces(null, false);
+							return namespaces.loadNamespaces(global.DD_MODULES, null, null, false);
 						};
 						
-						return namespaces.loadNamespaces(null, true)
+						return namespaces.loadNamespaces(global.DD_MODULES, null, null, true)
 							.then(function(done) {
 								return __Internal__.initScripts(true, scripts)
 							})
