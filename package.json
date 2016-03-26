@@ -1,6 +1,7 @@
 {
   "name": "doodad-js-loader",
-  "version": "0.2.2",
+  "version": "1.0.0",
+  "stage": "b",
   "description": "doodad-js Loader (beta)",
   "homepage": "https://sourceforge.net/projects/doodad-js/",
   "main": "index.js",

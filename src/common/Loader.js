@@ -35,16 +35,9 @@
 		DD_MODULES = (DD_MODULES || {});
 		DD_MODULES['Doodad.Loader'] = {
 			type: null,
-			version: '0.2.2b',
+			//! INSERT("version:'" + VERSION('doodad-js-loader') + "',")
 			namespaces: null,
-			dependencies: [
-				'Doodad.Tools.Files',
-				{
-					name: 'Doodad.Tools.SafeEval',
-					version: '0.2.0',
-				},
-				'Doodad.Namespaces',
-			],
+			dependencies: null,
 			proto: null,
 			
 			create: function create(root, /*optional*/_options) {
