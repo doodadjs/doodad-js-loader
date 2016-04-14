@@ -43,6 +43,17 @@
 		DD_MODULES['Doodad.Loader'] = {
 			version: /*! REPLACE_BY(TO_SOURCE(VERSION(MANIFEST("name")))) */ null /*! END_REPLACE() */,
 			
+			proto: function(root) {
+				var types = root.Doodad.Types;
+				return {
+					setOptions: types.SUPER(function setOptions(/*paramarray*/) {
+						options = this._super.apply(this, arguments);
+						options.defaultAsync = types.toBoolean(types.get(options, 'defaultAsync'));
+						return options;
+					}),
+				};
+			},
+			
 			create: function create(root, /*optional*/_options) {
 				"use strict";
 
@@ -70,13 +81,6 @@
 				//===================================
 				// Loader options
 				//===================================
-				__Internal__.oldSetOptions = loader.setOptions;
-				loader.setOptions = function setOptions(/*paramarray*/) {
-					var options = __Internal__.oldSetOptions.apply(this, arguments);
-						
-					options.defaultAsync = types.toBoolean(types.get(options, 'defaultAsync'));
-				};
-				
 				loader.setOptions({
 					// Settings
 					defaultAsync: true,
