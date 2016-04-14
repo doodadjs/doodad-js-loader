@@ -56,7 +56,7 @@ Then load 'doodad-js-loader' and its dependencies :
         // your code here...
     };
     
-    namespaces.loadNamespaces(modules, startup);
+    namespaces.load(modules, startup);
 ```
 
 ## Example
