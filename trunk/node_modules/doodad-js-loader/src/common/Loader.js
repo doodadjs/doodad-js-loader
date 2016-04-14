@@ -1,4 +1,4 @@
-//! REPLACE_BY("// Copyright 2016 Claude Petit, licensed under Apache License version 2.0\n")
+//! REPLACE_BY("// Copyright 2016 Claude Petit, licensed under Apache License version 2.0\n", true)
 // dOOdad - Object-oriented programming framework
 // File: Loader.js - Optional Loader
 // Project home: https://sourceforge.net/projects/doodad-js/
@@ -27,18 +27,21 @@
 	var global = this;
 
 	var exports = {};
-	if (typeof process === 'object') {
-		module.exports = exports;
+	
+	//! BEGIN_REMOVE()
+	if ((typeof process === 'object') && (typeof module === 'object')) {
+	//! END_REMOVE()
+		//! IF_DEF("serverSide")
+			module.exports = exports;
+		//! END_IF()
+	//! BEGIN_REMOVE()
 	};
+	//! END_REMOVE()
 	
 	exports.add = function add(DD_MODULES) {
 		DD_MODULES = (DD_MODULES || {});
 		DD_MODULES['Doodad.Loader'] = {
-			type: null,
-			//! INSERT("version:'" + VERSION('doodad-js-loader') + "',")
-			namespaces: null,
-			dependencies: null,
-			proto: null,
+			version: /*! REPLACE_BY(TO_SOURCE(VERSION(MANIFEST("name")))) */ null /*! END_REPLACE() */,
 			
 			create: function create(root, /*optional*/_options) {
 				"use strict";
@@ -69,17 +72,14 @@
 				//===================================
 				__Internal__.oldSetOptions = loader.setOptions;
 				loader.setOptions = function setOptions(/*paramarray*/) {
-					var options = __Internal__.oldSetOptions.apply(this, arguments),
-						settings = types.get(options, 'settings', {});
+					var options = __Internal__.oldSetOptions.apply(this, arguments);
 						
-					settings.defaultAsync = types.toBoolean(types.get(settings, 'defaultAsync'));
+					options.defaultAsync = types.toBoolean(types.get(options, 'defaultAsync'));
 				};
 				
 				loader.setOptions({
 					// Settings
-					settings: {
-						defaultAsync: true,
-					},
+					defaultAsync: true,
 				}, _options);
 				
 				
@@ -543,7 +543,7 @@
 					reload = !!reload;
 					
 					if (types.isNothing(async)) {
-						async = !!loader.getOptions().settings.defaultAsync;
+						async = !!loader.getOptions().defaultAsync;
 					} else {
 						async = !!async;
 					};
@@ -553,10 +553,10 @@
 
 					function loopScripts() {
 						if (!scripts.length) {
-							return namespaces.loadNamespaces(global.DD_MODULES, null, null, false);
+							return namespaces.load(global.DD_MODULES, null, null, false);
 						};
 						
-						return namespaces.loadNamespaces(global.DD_MODULES, null, null, true)
+						return namespaces.load(global.DD_MODULES, null, null, true)
 							.then(function(done) {
 								return __Internal__.initScripts(true, scripts)
 							})
@@ -639,8 +639,23 @@
 		return DD_MODULES;
 	};
 
-	if (typeof process !== 'object') {
-		// <PRB> export/import are not yet supported in browsers
-		global.DD_MODULES = exports.add(global.DD_MODULES);
+	//! BEGIN_REMOVE()
+	if ((typeof process !== 'object') || (typeof module !== 'object')) {
+	//! END_REMOVE()
+		//! IF_UNDEF("serverSide")
+			// <PRB> export/import are not yet supported in browsers
+			global.DD_MODULES = exports.add(global.DD_MODULES);
+		//! END_IF()
+	//! BEGIN_REMOVE()
 	};
-}).call((typeof global !== 'undefined') ? global : ((typeof window !== 'undefined') ? window : this));
+	//! END_REMOVE()
+}).call(
+	//! BEGIN_REMOVE()
+	(typeof window !== 'undefined') ? window : ((typeof global !== 'undefined') ? global : this)
+	//! END_REMOVE()
+	//! IF_DEF("serverSide")
+	//! 	INJECT("global")
+	//! ELSE()
+	//! 	INJECT("window")
+	//! END_IF()
+);
