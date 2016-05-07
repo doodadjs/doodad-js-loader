@@ -48,7 +48,7 @@
 				return {
 					setOptions: types.SUPER(function setOptions(/*paramarray*/) {
 						options = this._super.apply(this, arguments);
-						options.defaultAsync = types.toBoolean(types.get(options, 'defaultAsync'));
+						options.defaultAsync = types.toBoolean(options.defaultAsync);
 						return options;
 					}),
 				};
