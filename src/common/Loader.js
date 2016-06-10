@@ -137,7 +137,7 @@
 								};
 							
 							} catch(ex) {
-								if (ex instanceof types.ScriptAbortedError) {
+								if (ex instanceof types.ScriptInterruptedError) {
 									throw ex;
 								};
 								__Internal__.lastEx = ex;
@@ -216,7 +216,7 @@
 									};
 								};
 							} catch(ex) {
-								if (ex instanceof types.ScriptAbortedError) {
+								if (ex instanceof types.ScriptInterruptedError) {
 									throw ex;
 								};
 								__Internal__.lastEx = ex;
@@ -273,7 +273,7 @@
 								};
 								
 							} catch(ex) {
-								if (ex instanceof types.ScriptAbortedError) {
+								if (ex instanceof types.ScriptInterruptedError) {
 									throw ex;
 								};
 								if (root.DD_ASSERT) {
@@ -414,7 +414,7 @@
 													url = (url(root) || '');
 													dependencyScript.baseUrl = url;
 												} catch(o) {
-													if (o instanceof types.ScriptAbortedError) {
+													if (o instanceof types.ScriptInterruptedError) {
 														throw ex;
 													};
 													__Internal__.lastEx = o;
@@ -432,7 +432,7 @@
 															file = (file(root) || '');
 															dependencyScript.fileName = file;
 														} catch(o) {
-															if (o instanceof types.ScriptAbortedError) {
+															if (o instanceof types.ScriptInterruptedError) {
 																throw ex;
 															};
 															__Internal__.lastEx = o;
