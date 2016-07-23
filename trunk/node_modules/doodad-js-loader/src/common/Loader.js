@@ -43,17 +43,6 @@
 		DD_MODULES['Doodad.Loader'] = {
 			version: /*! REPLACE_BY(TO_SOURCE(VERSION(MANIFEST("name")))) */ null /*! END_REPLACE() */,
 			
-			proto: function(root) {
-				var types = root.Doodad.Types;
-				return {
-					setOptions: types.SUPER(function setOptions(/*paramarray*/) {
-						options = this._super.apply(this, arguments);
-						options.defaultAsync = types.toBoolean(options.defaultAsync);
-						return options;
-					}),
-				};
-			},
-			
 			create: function create(root, /*optional*/_options) {
 				"use strict";
 
@@ -75,27 +64,24 @@
 				var __Internal__ = {
 					lastEx: null,		// <FUTURE> global for every thread
 					evalCache: null,	// <FUTURE> global for every thread
-					oldSetOptions: null,
 				};
 
 				//===================================
-				// Loader options
+				// Options
 				//===================================
-				loader.setOptions({
-					// Settings
+					
+				var __options__ = types.extend({
 					defaultAsync: true,
 				}, _options);
-				
-				
-				//===================================
-				// Events
-				//===================================
-				
-				loader.onloading = null;
-				loader.onwaiting = null;
-				loader.onsuccess = null;
-				loader.onerror = null;
-				
+
+				__options__.defaultAsync = types.toBoolean(__options__.defaultAsync);
+
+				types.freezeObject(__options__);
+
+				loader.getOptions = function() {
+					return __options__;
+				};
+
 				
 				//===================================
 				// Utilities
@@ -276,7 +262,7 @@
 								if (ex instanceof types.ScriptInterruptedError) {
 									throw ex;
 								};
-								if (root.DD_ASSERT) {
+								if (root.getOptions().debug) {
 									throw ex;
 								};
 								__Internal__.lastEx = ex;
@@ -479,7 +465,7 @@
 																return true; // already loaded
 															} else {
 																// Load new script
-																return new Promise(function(resolve, reject) {
+																return Promise.create(function readyPromise(resolve, reject) {
 																		scriptLoader.addEventListener('load', resolve);
 																		scriptLoader.addEventListener('error', reject);
 																		scriptLoader.start();
@@ -547,7 +533,7 @@
 					reload = !!reload;
 					
 					if (types.isNothing(async)) {
-						async = !!loader.getOptions().defaultAsync;
+						async = __options__.defaultAsync;
 					} else {
 						async = !!async;
 					};
@@ -599,7 +585,7 @@
 									tools.log(tools.LogLevels.Error, "The following scripts failed to load or to initialize :");
 									__Internal__.dumpFailed(scripts);
 									
-									if (root.DD_ASSERT) {
+									if (root.getOptions().debug) {
 										debugger;
 									};
 									
