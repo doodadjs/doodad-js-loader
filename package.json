@@ -1,6 +1,6 @@
 {
   "name": "doodad-js-loader",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "stage": "b",
   "description": "doodad-js Loader (beta)",
   "config": {
@@ -13,5 +13,13 @@
     "doodad-js",
     "loader"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doodadjs/doodad-js-loader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/doodadjs/doodad-js-loader/issues",
+    "email": "doodadjs@gmail.com"
+  },
   "tonicExampleFilename": "tonic.js"
 }

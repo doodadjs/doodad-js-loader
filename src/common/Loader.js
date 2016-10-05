@@ -1,8 +1,9 @@
+//! BEGIN_MODULE()
+
 //! REPLACE_BY("// Copyright 2016 Claude Petit, licensed under Apache License version 2.0\n", true)
-// dOOdad - Object-oriented programming framework
+// doodad-js - Object-oriented programming framework
 // File: Loader.js - Optional Loader
-// Project home: https://sourceforge.net/projects/doodad-js/
-// Trunk: svn checkout svn://svn.code.sf.net/p/doodad-js/code/trunk doodad-js-code
+// Project home: https://github.com/doodadjs/
 // Author: Claude Petit, Quebec city
 // Contact: doodadjs [at] gmail.com
 // Note: I'm still in alpha-beta stage, so expect to find some bugs or incomplete parts !
@@ -23,27 +24,12 @@
 //	limitations under the License.
 //! END_REPLACE()
 
-(function() {
-	var global = this;
-
-	var exports = {};
-	
-	//! BEGIN_REMOVE()
-	if ((typeof process === 'object') && (typeof module === 'object')) {
-	//! END_REMOVE()
-		//! IF_DEF("serverSide")
-			module.exports = exports;
-		//! END_IF()
-	//! BEGIN_REMOVE()
-	};
-	//! END_REMOVE()
-	
-	exports.add = function add(DD_MODULES) {
+module.exports = {
+	add: function add(DD_MODULES) {
 		DD_MODULES = (DD_MODULES || {});
 		DD_MODULES['Doodad.Loader'] = {
-			version: /*! REPLACE_BY(TO_SOURCE(VERSION(MANIFEST("name")))) */ null /*! END_REPLACE() */,
-			
-			create: function create(root, /*optional*/_options) {
+			version: /*! REPLACE_BY(TO_SOURCE(VERSION(MANIFEST("name")))) */ null /*! END_REPLACE()*/,
+			create: function create(root, /*optional*/_options, _shared) {
 				"use strict";
 
 				//===================================
@@ -103,11 +89,11 @@
 								if (types.isObject(expr)) {
 									var thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
-										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root}, null, true);
+										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
 									};
 									val = expr._function;
 									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true);
+										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
 									};
 									if (types.isFunction(val)) {
 										val = val.call(thisObj, root);
@@ -115,7 +101,7 @@
 								} else {
 									val = expr;
 									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true);
+										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
 									};
 									if (types.isFunction(val)) {
 										val = val.call(undefined, root);
@@ -183,11 +169,11 @@
 								if (types.isObject(expr)) {
 									thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
-										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root}, null, true, false);
+										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
 									};
 									val = expr._function;
 									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
 									};
 									if (types.isFunction(val)) {
 										val = val.call(thisObj, root);
@@ -195,7 +181,7 @@
 								} else {
 									val = expr;
 									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
 									};
 									if (types.isFunction(val)) {
 										val = val.call(undefined, root);
@@ -239,11 +225,11 @@
 								if (types.isObject(expr)) {
 									var thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
-										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root}, null, true, false);
+										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
 									};
 									val = expr._function;
 									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
 									};
 									if (types.isFunction(val)) {
 										val = val.call(thisObj, root);
@@ -251,7 +237,7 @@
 								} else {
 									val = expr;
 									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root}, null, true, false);
+										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
 									};
 									if (types.isFunction(val)) {
 										val = val.call(undefined, root);
@@ -272,7 +258,7 @@
 						
 						if (types.isPromise(val)) {
 							return val
-								.then(function() {
+								.then(function(result) {
 									return doInitializers(initializers);
 								});
 						} else {
@@ -525,11 +511,18 @@
 					});
 				};
 				
-				loader.loadScripts = function loadScripts(scripts, /*optional*/reload, /*optional*/async) {
+				loader.loadScripts = function loadScripts(scripts, /*optional*/options) {
 					var Promise = types.getPromise();
+
+					if (types.get(options, 'secret') !== _shared.SECRET) {
+						throw new types.AccessDenied("Secrets mismatch.");
+					};
 
 					root.DD_ASSERT && root.DD_ASSERT(types.isArray(scripts), 'Invalid scripts array.');
 					
+					var reload = types.get(options, 'reload'), 
+						async = types.get(options, 'async');
+
 					reload = !!reload;
 					
 					if (types.isNothing(async)) {
@@ -543,13 +536,10 @@
 
 					function loopScripts() {
 						if (!scripts.length) {
-							return namespaces.load(global.DD_MODULES, null, null, false);
+							return Promise.resolve(true);
 						};
 						
-						return namespaces.load(global.DD_MODULES, null, null, true)
-							.then(function(done) {
-								return __Internal__.initScripts(true, scripts)
-							})
+						return __Internal__.initScripts(true, scripts)
 							.then(function(ok1) {
 								return __Internal__.initScripts(false, scripts)
 									.then(function(ok2) {
@@ -625,27 +615,7 @@
 				//};
 			},
 		};
-
 		return DD_MODULES;
-	};
-
-	//! BEGIN_REMOVE()
-	if ((typeof process !== 'object') || (typeof module !== 'object')) {
-	//! END_REMOVE()
-		//! IF_UNDEF("serverSide")
-			// <PRB> export/import are not yet supported in browsers
-			global.DD_MODULES = exports.add(global.DD_MODULES);
-		//! END_IF()
-	//! BEGIN_REMOVE()
-	};
-	//! END_REMOVE()
-}).call(
-	//! BEGIN_REMOVE()
-	(typeof window !== 'undefined') ? window : ((typeof global !== 'undefined') ? global : this)
-	//! END_REMOVE()
-	//! IF_DEF("serverSide")
-	//! 	INJECT("global")
-	//! ELSE()
-	//! 	INJECT("window")
-	//! END_IF()
-);
+	},
+};
+//! END_MODULE()
