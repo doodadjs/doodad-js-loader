@@ -1,8 +1,7 @@
 {
   "name": "doodad-js-loader",
-  "version": "2.0.0",
-  "stage": "b",
   "description": "doodad-js Loader (beta)",
+  "version": "0.0.0",
   "config": {
     "defaultAsync": true
   },
