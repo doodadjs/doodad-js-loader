@@ -3,7 +3,9 @@
   "description": "doodad-js Loader (beta)",
   "version": "0.0.0",
   "config": {
-    "defaultAsync": true
+	"Doodad__Loader": {
+		"defaultAsync": true
+	}
   },
   "files": [
 	"tonic.js"
