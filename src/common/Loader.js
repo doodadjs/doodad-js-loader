@@ -64,9 +64,9 @@ module.exports = {
 
 				types.freezeObject(__options__);
 
-				loader.getOptions = function() {
+				loader.ADD('getOptions', function() {
 					return __options__;
-				};
+				});
 
 				
 				//===================================
@@ -511,7 +511,7 @@ module.exports = {
 					});
 				};
 				
-				loader.loadScripts = function loadScripts(scripts, /*optional*/options) {
+				loader.ADD('loadScripts', function loadScripts(scripts, /*optional*/options) {
 					var Promise = types.getPromise();
 
 					if (types.get(options, 'secret') !== _shared.SECRET) {
@@ -606,7 +606,7 @@ module.exports = {
 										
 							return done;
 						});
-				};
+				});
 
 				//===================================
 				// Init
