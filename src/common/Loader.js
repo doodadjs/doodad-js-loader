@@ -35,7 +35,7 @@ module.exports = {
 				//===================================
 				// Get namespaces
 				//===================================
-				var doodad = root.Doodad,
+				const doodad = root.Doodad,
 					loader = doodad.Loader,
 					types = doodad.Types,
 					tools = doodad.Tools,
@@ -47,7 +47,7 @@ module.exports = {
 				// Internals
 				//===================================
 				// <FUTURE> Thread context
-				var __Internal__ = {
+				const __Internal__ = {
 					lastEx: null,		// <FUTURE> global for every thread
 					evalCache: null,	// <FUTURE> global for every thread
 				};
@@ -56,7 +56,7 @@ module.exports = {
 				// Options
 				//===================================
 					
-				var __options__ = types.extend({
+				const __options__ = types.extend({
 					defaultAsync: true,
 				}, _options);
 
@@ -74,20 +74,21 @@ module.exports = {
 				//===================================
 				
 				__Internal__.initScripts = function initScripts(before, scripts) {
-					var Promise = types.getPromise();
+					const Promise = types.getPromise();
 					
 					function doExcludes(exclude) {
 						if (!exclude.length) {
 							return Promise.resolve(true);
 						};
 						
-						var expr = exclude[0],
-							val = false;
+						const expr = exclude[0];
+
+						let val = false;
 						
 						if (expr) {
 							try {
 								if (types.isObject(expr)) {
-									var thisObj = expr.thisObj;
+									let thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
 										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
 									};
@@ -135,24 +136,24 @@ module.exports = {
 							return Promise.resolve(true);
 						};
 						
-						var expr = include[0];
+						const expr = include[0];
 						
-						var val = false;
+						let val = false;
 							
 						if (expr) {
 							if (!before) {
-								for (var i = 1; i < scripts.length; i++) {
-									if (i in scripts) {
-										var beforeScript = scripts[i] || {};
-										var beforeDependencies = beforeScript.dependencies || [];
-										for (var j = 0; j < beforeDependencies.length; j++) {
-											if (j in beforeDependencies) {
-												var beforeDependency = beforeDependencies[j] || {};
+								for (let i = 1; i < scripts.length; i++) {
+									if (types.has(scripts, i)) {
+										const beforeScript = scripts[i] || {};
+										const beforeDependencies = beforeScript.dependencies || [];
+										for (let j = 0; j < beforeDependencies.length; j++) {
+											if (types.has(beforeDependencies, j)) {
+												const beforeDependency = beforeDependencies[j] || {};
 												if (beforeDependency.before) {
-													var beforeConditions = beforeDependency.conditions || {};
-													var beforeExprs = beforeConditions.include || [];
-													for (var k = 0; k < beforeExprs.length; k++) {
-														if (k in beforeExprs) {
+													const beforeConditions = beforeDependency.conditions || {};
+													const beforeExprs = beforeConditions.include || [];
+													for (let k = 0; k < beforeExprs.length; k++) {
+														if (types.has(beforeExprs, k)) {
 															if (beforeExprs[k] === expr) {
 																return Promise.resolve(false);
 															};
@@ -217,13 +218,14 @@ module.exports = {
 							return Promise.resolve(true);
 						};
 						
-						var expr = initializers.shift(),
-							val;
+						const expr = initializers.shift();
+
+						let val;
 							
 						if (expr) {
 							try {
 								if (types.isObject(expr)) {
-									var thisObj = expr.thisObj;
+									let thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
 										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
 									};
@@ -271,15 +273,15 @@ module.exports = {
 							return Promise.resolve(false);
 						};
 						
-						var dependency = (dependencies[index] || {});
+						const dependency = (dependencies[index] || {});
 						
-						var dependencyBefore = !!dependency.before;
+						const dependencyBefore = !!dependency.before;
 						if (dependencyBefore !== before) {
 							// Skip
 							return loopDependencies(dependencies, ++index);
 						};
 						
-						var conditions = (dependency.conditions || {});
+						const conditions = (dependency.conditions || {});
 						
 						return doExcludes(conditions.exclude || [])
 							.then(function(ok) {
@@ -291,7 +293,7 @@ module.exports = {
 							})
 							.then(function(ok) {
 								if (ok) {
-									var dependencyScripts = (dependency.scripts || []);
+									const dependencyScripts = (dependency.scripts || []);
 									if (dependencyScripts.length) {
 										return false;
 									} else {
@@ -312,7 +314,7 @@ module.exports = {
 							});
 					};
 					
-					var removed = false,
+					let removed = false,
 						last = null;
 					
 					function loopScripts() {
@@ -324,7 +326,7 @@ module.exports = {
 							return Promise.resolve(false);
 						};
 						
-						var script = (scripts.shift() || {}),
+						const script = (scripts.shift() || {}),
 							dependencies = (script.dependencies || []);
 							
 						return loopDependencies(dependencies, 0)
@@ -353,34 +355,34 @@ module.exports = {
 				};
 				
 				__Internal__.loadMissings = function loadMissings(before, scripts, reload, async) {
-					var Promise = types.getPromise();
+					const Promise = types.getPromise();
 
-					var promises = [];
+					const promises = [];
 						
-					for (var i = 0; i < scripts.length; i++) {
-						if (i in scripts) {
-							var script = (scripts[i] || {}),
+					for (let i = 0; i < scripts.length; i++) {
+						if (types.has(scripts, i)) {
+							const script = (scripts[i] || {}),
 								dependencies = (script.dependencies || []);
 							
-							for (var j = 0; j < dependencies.length; j++) {
-								if (j in dependencies) {
-									var dependency = (dependencies[j] || {}),
+							for (let j = 0; j < dependencies.length; j++) {
+								if (types.has(dependencies, j)) {
+									const dependency = (dependencies[j] || {}),
 										conditions = (dependency.conditions || {});
 
-									var dependencyBefore = !!conditions.before;
+									const dependencyBefore = !!conditions.before;
 									if (dependencyBefore !== before) {
 										continue;
 									};
 
-									var exprs = (conditions.include || []),
+									const exprs = (conditions.include || []),
 										dependencyScripts = (dependency.scripts || []);
 
 									// If ready to load scripts...
 									if (!exprs.length) {
 										// Load scripts
-										var dependencyScript;
+										let dependencyScript;
 										while (dependencyScript = dependencyScripts.shift()) {
-											var url = dependencyScript.baseUrl;
+											let url = dependencyScript.baseUrl;
 											if (types.isFunction(url)) {
 												try {
 													url = (url(root) || '');
@@ -396,9 +398,9 @@ module.exports = {
 											if (!types.isPromise(url)) {
 												url = Promise.resolve(url);
 											};
-											var promise = (function(promise, dependencyScript) {
+											const promise = (function(promise, dependencyScript) {
 												return promise.then(function(url) {
-													var file = dependencyScript.fileName;
+													let file = dependencyScript.fileName;
 													if (types.isFunction(file)) {
 														try {
 															file = (file(root) || '');
@@ -413,7 +415,7 @@ module.exports = {
 													};
 													if (url && file) {
 														if (types.isString(url)) {
-															var tmp = files.Url.parse(url);
+															let tmp = files.Url.parse(url);
 															if (!tmp.protocol) {
 																tmp = files.Path.parse(url);
 															};
@@ -432,8 +434,8 @@ module.exports = {
 
 														url = url.set({file: null}).combine(file);
 
-														var scriptLoader = null;
-														var scriptType = (dependencyScript.fileType || 'js');
+														let scriptLoader = null;
+														const scriptType = (dependencyScript.fileType || 'js');
 														if (scriptType === 'js') {
 															scriptLoader = tools.getJsScriptFileLoader(/*url*/url, /*async*/async, /*timeout*/dependencyScript.timeout, /*reload*/reload);
 														} else if (scriptType === 'css') {
@@ -482,7 +484,7 @@ module.exports = {
 					};
 					return Promise.all(promises)
 						.then(function(results) {
-							var loaded = tools.some(results, function(result) {
+							const loaded = tools.some(results, function(result) {
 								return result;
 							});
 							return loaded;
@@ -490,10 +492,10 @@ module.exports = {
 				};
 
 				__Internal__.dumpFailed = function dumpFailed(scripts) {
-					for (var i = 0; i < scripts.length; i++) {
-						if (i in scripts) {
-							var script = scripts[i] || {};
-							var optionalDependencies = tools.filter((script.dependencies || []), function(dependency) {
+					for (let i = 0; i < scripts.length; i++) {
+						if (types.has(scripts, i)) {
+							const script = scripts[i] || {};
+							const optionalDependencies = tools.filter((script.dependencies || []), function(dependency) {
 								return dependency.optional;
 							});
 							if (!optionalDependencies.length) {
@@ -512,7 +514,7 @@ module.exports = {
 				};
 				
 				loader.ADD('loadScripts', function loadScripts(scripts, /*optional*/options) {
-					var Promise = types.getPromise();
+					const Promise = types.getPromise();
 
 					if (types.get(options, 'secret') !== _shared.SECRET) {
 						throw new types.AccessDenied("Secrets mismatch.");
@@ -520,16 +522,8 @@ module.exports = {
 
 					root.DD_ASSERT && root.DD_ASSERT(types.isArray(scripts), 'Invalid scripts array.');
 					
-					var reload = types.get(options, 'reload'), 
-						async = types.get(options, 'async');
-
-					reload = !!reload;
-					
-					if (types.isNothing(async)) {
-						async = __options__.defaultAsync;
-					} else {
-						async = !!async;
-					};
+					const reload = !!types.get(options, 'reload', false), 
+						async = !!types.get(options, 'async', __options__.defaultAsync);
 
 					__Internal__.lastEx = null;
 					__Internal__.evalCache = {};
@@ -570,7 +564,7 @@ module.exports = {
 									__Internal__.lastEx = err;
 								};
 								
-								var ok = __Internal__.areOptional(scripts);
+								const ok = __Internal__.areOptional(scripts);
 								if (!ok) {
 									tools.log(tools.LogLevels.Error, "The following scripts failed to load or to initialize :");
 									__Internal__.dumpFailed(scripts);
