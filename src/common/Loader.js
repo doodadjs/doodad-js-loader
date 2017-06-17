@@ -90,27 +90,31 @@ module.exports = {
 								if (types.isObject(expr)) {
 									let thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
-										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
+										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {locals: {root: root}});
 									};
-									val = expr._function;
-									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
+									let fn = expr._function;
+									if (types.isString(fn)) {
+										fn = safeEval.evalCached(__Internal__.evalCache, fn, {locals: {root: root}});
 									};
-									if (types.isFunction(val)) {
-										val = val.call(thisObj, root);
+									if (types.isFunction(fn)) {
+										val = fn.call(thisObj, root);
+									} else {
+										val = fn;
 									};
 								} else {
-									val = expr;
-									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
+									let fn = expr;
+									if (types.isString(fn)) {
+										fn = safeEval.evalCached(__Internal__.evalCache, fn, {locals: {root: root}});
 									};
-									if (types.isFunction(val)) {
-										val = val.call(undefined, root);
+									if (types.isFunction(fn)) {
+										val = fn.call(undefined, root);
+									} else {
+										val = fn;
 									};
 								};
 							
 							} catch(ex) {
-								if (ex instanceof types.ScriptInterruptedError) {
+								if (ex.bubble) {
 									throw ex;
 								};
 								__Internal__.lastEx = ex;
@@ -170,26 +174,30 @@ module.exports = {
 								if (types.isObject(expr)) {
 									thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
-										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
+										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {locals: {root: root}});
 									};
-									val = expr._function;
-									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
+									let fn = expr._function;
+									if (types.isString(fn)) {
+										fn = safeEval.evalCached(__Internal__.evalCache, fn, {locals: {root: root}});
 									};
-									if (types.isFunction(val)) {
-										val = val.call(thisObj, root);
+									if (types.isFunction(fn)) {
+										val = fn.call(thisObj, root);
+									} else {
+										val = fn;
 									};
 								} else {
-									val = expr;
-									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
+									let fn = expr;
+									if (types.isString(fn)) {
+										fn = safeEval.evalCached(__Internal__.evalCache, fn, {locals: {root: root}});
 									};
-									if (types.isFunction(val)) {
-										val = val.call(undefined, root);
+									if (types.isFunction(fn)) {
+										val = fn.call(undefined, root);
+									} else {
+										val = fn;
 									};
 								};
 							} catch(ex) {
-								if (ex instanceof types.ScriptInterruptedError) {
+								if (ex.bubble) {
 									throw ex;
 								};
 								__Internal__.lastEx = ex;
@@ -227,27 +235,31 @@ module.exports = {
 								if (types.isObject(expr)) {
 									let thisObj = expr.thisObj;
 									if (types.isString(thisObj)) {
-										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {root: root});
+										thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {locals: {root: root}});
 									};
-									val = expr._function;
-									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
+									let fn = expr._function;
+									if (types.isString(fn)) {
+										fn = safeEval.evalCached(__Internal__.evalCache, fn, {locals: {root: root}});
 									};
-									if (types.isFunction(val)) {
-										val = val.call(thisObj, root);
+									if (types.isFunction(fn)) {
+										val = fn.call(thisObj, root);
+									} else {
+										val = fn;
 									};
 								} else {
-									val = expr;
-									if (types.isString(val)) {
-										val = safeEval.evalCached(__Internal__.evalCache, val, {root: root});
+									let fn = expr;
+									if (types.isString(fn)) {
+										fn = safeEval.evalCached(__Internal__.evalCache, fn, {locals: {root: root}});
 									};
-									if (types.isFunction(val)) {
-										val = val.call(undefined, root);
+									if (types.isFunction(fn)) {
+										val = fn.call(undefined, root);
+									} else {
+										val = fn;
 									};
 								};
 								
 							} catch(ex) {
-								if (ex instanceof types.ScriptInterruptedError) {
+								if (ex.bubble) {
 									throw ex;
 								};
 								if (root.getOptions().debug) {
@@ -388,7 +400,7 @@ module.exports = {
 													url = (url(root) || '');
 													dependencyScript.baseUrl = url;
 												} catch(o) {
-													if (o instanceof types.ScriptInterruptedError) {
+													if (o.bubble) {
 														throw ex;
 													};
 													__Internal__.lastEx = o;
@@ -406,7 +418,7 @@ module.exports = {
 															file = (file(root) || '');
 															dependencyScript.fileName = file;
 														} catch(o) {
-															if (o instanceof types.ScriptInterruptedError) {
+															if (o.bubble) {
 																throw ex;
 															};
 															__Internal__.lastEx = o;
