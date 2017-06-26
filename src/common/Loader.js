@@ -426,13 +426,7 @@ module.exports = {
 														};
 													};
 													if (url && file) {
-														if (types.isString(url)) {
-															let tmp = files.Url.parse(url);
-															if (!tmp.protocol) {
-																tmp = files.Path.parse(url);
-															};
-															url = tmp;
-														};
+														url = files.parseLocation(url);
 
 														if (root.DD_ASSERT) {
 															root.DD_ASSERT && root.DD_ASSERT(types._instanceof(url, [files.Url, files.Path]), "Invalid url.");
@@ -471,9 +465,6 @@ module.exports = {
 																		scriptLoader.start();
 																	})
 																	.then(function(ev) {
-																		if (ev.detail && ev.detail.finalize) {
-																			ev.detail.finalize();
-																		};
 																		return true;
 																	})
 																	['catch'](function(ev) {
