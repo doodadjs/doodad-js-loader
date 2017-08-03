@@ -573,7 +573,7 @@ module.exports = {
 									__Internal__.dumpFailed(scripts);
 									
 									if (root.getOptions().debug) {
-										debugger;
+										types.DEBUGGER();
 									};
 									
 									if (__Internal__.lastEx) {
