@@ -56,7 +56,7 @@ module.exports = {
 				// Options
 				//===================================
 					
-				const __options__ = types.extend({
+				const __options__ = tools.extend({
 					defaultAsync: true,
 				}, _options);
 
