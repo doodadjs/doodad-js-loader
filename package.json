@@ -1,5 +1,5 @@
 {
-  "name": "doodad-js-loader",
+  "name": "@doodad-js/loader",
   "description": "doodad-js Loader (beta)",
   "version": "0.0.0",
   "config": {
