@@ -39,8 +39,8 @@ exports.add = function add(DD_MODULES) {
 				types = doodad.Types,
 				tools = doodad.Tools,
 				files = tools.Files,
-				safeEval = tools.SafeEval,
-				namespaces = doodad.Namespaces;
+				safeEval = tools.SafeEval;
+				//namespaces = doodad.Namespaces;
 						
 			//===================================
 			// Internals
@@ -171,7 +171,7 @@ exports.add = function add(DD_MODULES) {
 
 						try {
 							if (types.isObject(expr)) {
-								thisObj = expr.thisObj;
+								let thisObj = expr.thisObj;
 								if (types.isString(thisObj)) {
 									thisObj = safeEval.evalCached(__Internal__.evalCache, thisObj, {locals: {root: root}});
 								};
@@ -369,7 +369,76 @@ exports.add = function add(DD_MODULES) {
 				const Promise = types.getPromise();
 
 				const promises = [];
-						
+				
+				const loadAsync = function _loadAsync(promise, dependencyScript) {
+					return promise.then(function(url) {
+						const Promise = types.getPromise();
+						let file = dependencyScript.fileName;
+						if (types.isFunction(file)) {
+							try {
+								file = (file(root) || '');
+								dependencyScript.fileName = file;
+							} catch(o) {
+								if (o.bubble) {
+									throw o;
+								};
+								__Internal__.lastEx = o;
+								file = null;
+							};
+						};
+						if (url && file) {
+							url = files.parseLocation(url);
+
+							if (root.DD_ASSERT) {
+								root.DD_ASSERT && root.DD_ASSERT(types._instanceof(url, [files.Url, files.Path]), "Invalid url.");
+								root.DD_ASSERT && root.DD_ASSERT(types.isString(file), "Invalid file.");
+							};
+														
+							file = files.Path.parse(file, {
+								isRelative: true, // force relative
+								dirChar: ['/', '\\'],
+							});
+
+							url = url.set({file: null}).combine(file);
+
+							let scriptLoader = null;
+							const scriptType = (dependencyScript.fileType || 'js');
+							if (scriptType === 'js') {
+								scriptLoader = tools.getJsScriptFileLoader(/*url*/url, /*async*/async, /*timeout*/dependencyScript.timeout, /*reload*/reload);
+							} else if (scriptType === 'css') {
+								if (tools.getCssScriptFileLoader) {
+									async = false;
+									scriptLoader = tools.getCssScriptFileLoader(/*url*/url, /*async*/async, /*media*/dependencyScript.media, /*timeout*/dependencyScript.timeout, /*reload*/reload);
+								} else {
+									// Skip
+									return true;
+								};
+							};
+
+							if (scriptLoader) {
+								if (scriptLoader.launched) {
+									return true; // already loaded
+								} else {
+									// Load new script
+									return Promise.create(function readyPromise(resolve, reject) {
+											scriptLoader.addEventListener('load', resolve);
+											scriptLoader.addEventListener('error', reject);
+											scriptLoader.start();
+										})
+										.then(function(ev) {
+											return true;
+										})
+										.catch(function(ev) {
+											throw new types.Error("Unable to load file '~0~'.", [url.toString()]);
+										});
+								};
+							};
+						};
+													
+						return false;
+					});
+				};
+
 				for (let i = 0; i < scripts.length; i++) {
 					if (types.has(scripts, i)) {
 						const script = (scripts[i] || {}),
@@ -392,6 +461,7 @@ exports.add = function add(DD_MODULES) {
 								if (!exprs.length) {
 									// Load scripts
 									let dependencyScript;
+									/* eslint no-cond-assign: "off" */
 									while (dependencyScript = dependencyScripts.shift()) {
 										let url = dependencyScript.baseUrl;
 										if (types.isFunction(url)) {
@@ -400,7 +470,7 @@ exports.add = function add(DD_MODULES) {
 												dependencyScript.baseUrl = url;
 											} catch(o) {
 												if (o.bubble) {
-													throw ex;
+													throw o;
 												};
 												__Internal__.lastEx = o;
 												url = null;
@@ -409,74 +479,7 @@ exports.add = function add(DD_MODULES) {
 										if (!types.isPromise(url)) {
 											url = Promise.resolve(url);
 										};
-										const promise = (function(promise, dependencyScript) {
-											return promise.then(function(url) {
-												let file = dependencyScript.fileName;
-												if (types.isFunction(file)) {
-													try {
-														file = (file(root) || '');
-														dependencyScript.fileName = file;
-													} catch(o) {
-														if (o.bubble) {
-															throw ex;
-														};
-														__Internal__.lastEx = o;
-														file = null;
-													};
-												};
-												if (url && file) {
-													url = files.parseLocation(url);
-
-													if (root.DD_ASSERT) {
-														root.DD_ASSERT && root.DD_ASSERT(types._instanceof(url, [files.Url, files.Path]), "Invalid url.");
-														root.DD_ASSERT && root.DD_ASSERT(types.isString(file), "Invalid file.");
-													};
-														
-													file = files.Path.parse(file, {
-														isRelative: true, // force relative
-														dirChar: ['/', '\\'],
-													});
-
-													url = url.set({file: null}).combine(file);
-
-													let scriptLoader = null;
-													const scriptType = (dependencyScript.fileType || 'js');
-													if (scriptType === 'js') {
-														scriptLoader = tools.getJsScriptFileLoader(/*url*/url, /*async*/async, /*timeout*/dependencyScript.timeout, /*reload*/reload);
-													} else if (scriptType === 'css') {
-														if (tools.getCssScriptFileLoader) {
-															async = false;
-															scriptLoader = tools.getCssScriptFileLoader(/*url*/url, /*async*/async, /*media*/dependencyScript.media, /*timeout*/dependencyScript.timeout, /*reload*/reload);
-														} else {
-															// Skip
-															return true;
-														};
-													};
-
-													if (scriptLoader) {
-														if (scriptLoader.launched) {
-															return true; // already loaded
-														} else {
-															// Load new script
-															return Promise.create(function readyPromise(resolve, reject) {
-																	scriptLoader.addEventListener('load', resolve);
-																	scriptLoader.addEventListener('error', reject);
-																	scriptLoader.start();
-																})
-																.then(function(ev) {
-																	return true;
-																})
-																['catch'](function(ev) {
-																	throw new types.Error("Unable to load file '~0~'.", [url.toString()]);
-																});
-														};
-													};
-												};
-													
-												return false;
-											});
-										})(url, dependencyScript);
-											
+										const promise = loadAsync(url, dependencyScript);
 										promises.push(promise);
 									};
 								};
