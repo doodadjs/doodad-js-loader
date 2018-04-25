@@ -26,7 +26,7 @@
 
 //! IF_SET("mjs")
 //! ELSE()
-	"use strict";
+"use strict";
 //! END_IF()
 
 exports.add = function add(modules) {
@@ -424,10 +424,10 @@ exports.add = function add(modules) {
 								} else {
 									// Load new script
 									return Promise.create(function readyPromise(resolve, reject) {
-											scriptLoader.addEventListener('load', resolve);
-											scriptLoader.addEventListener('error', reject);
-											scriptLoader.start();
-										})
+										scriptLoader.addEventListener('load', resolve);
+										scriptLoader.addEventListener('error', reject);
+										scriptLoader.start();
+									})
 										.then(function(ev) {
 											return true;
 										})
