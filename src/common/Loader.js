@@ -44,7 +44,7 @@ exports.add = function add(modules) {
 				files = tools.Files,
 				safeEval = tools.SafeEval;
 				//namespaces = doodad.Namespaces;
-						
+
 			//===================================
 			// Internals
 			//===================================
@@ -57,7 +57,7 @@ exports.add = function add(modules) {
 			//===================================
 			// Options
 			//===================================
-					
+
 			const __options__ = tools.extend({
 				defaultAsync: true,
 			}, _options);
@@ -70,23 +70,23 @@ exports.add = function add(modules) {
 				return __options__;
 			});
 
-				
+
 			//===================================
 			// Utilities
 			//===================================
-				
+
 			__Internal__.initScripts = function initScripts(before, scripts) {
 				const Promise = types.getPromise();
-					
+
 				function doExcludes(exclude) {
 					if (!exclude.length) {
 						return Promise.resolve(true);
 					};
-						
+
 					const expr = exclude[0];
 
 					let val = false;
-						
+
 					if (expr) {
 						try {
 							if (types.isObject(expr)) {
@@ -114,7 +114,7 @@ exports.add = function add(modules) {
 									val = fn;
 								};
 							};
-							
+
 						} catch(ex) {
 							if (ex.bubble) {
 								throw ex;
@@ -122,11 +122,11 @@ exports.add = function add(modules) {
 							__Internal__.lastEx = ex;
 						};
 					};
-						
+
 					if (!types.isPromise(val)) {
 						val = Promise.resolve(val);
 					};
-						
+
 					return val.then(function(result) {
 						if (result) {
 							return false;
@@ -141,11 +141,11 @@ exports.add = function add(modules) {
 					if (!include.length) {
 						return Promise.resolve(true);
 					};
-						
+
 					const expr = include[0];
-						
+
 					let val = false;
-							
+
 					if (expr) {
 						if (!before) {
 							for (let i = 1; i < scripts.length; i++) {
@@ -204,15 +204,15 @@ exports.add = function add(modules) {
 							};
 							__Internal__.lastEx = ex;
 						};
-							
+
 					} else {
 						val = true;
 					};
-						
+
 					if (!types.isPromise(val)) {
 						val = Promise.resolve(val);
 					};
-						
+
 					return val.then(function(result) {
 						if (result) {
 							include.shift();
@@ -222,16 +222,16 @@ exports.add = function add(modules) {
 						};
 					});
 				};
-					
+
 				function doInitializers(initializers) {
 					if (!initializers.length) {
 						return Promise.resolve(true);
 					};
-						
+
 					const expr = initializers.shift();
 
 					let val;
-							
+
 					if (expr) {
 						try {
 							if (types.isObject(expr)) {
@@ -259,7 +259,7 @@ exports.add = function add(modules) {
 									val = fn;
 								};
 							};
-								
+
 						} catch(ex) {
 							if (ex.bubble) {
 								throw ex;
@@ -271,7 +271,7 @@ exports.add = function add(modules) {
 							return Promise.resolve(false);
 						};
 					};
-						
+
 					if (types.isPromise(val)) {
 						return val
 							.then(function(result) {
@@ -281,22 +281,22 @@ exports.add = function add(modules) {
 						return doInitializers(initializers);
 					};
 				};
-					
+
 				function loopDependencies(dependencies, index) {
 					if (index >= dependencies.length) {
 						return Promise.resolve(false);
 					};
-						
+
 					const dependency = (dependencies[index] || {});
-						
+
 					const dependencyBefore = !!dependency.before;
 					if (dependencyBefore !== before) {
 						// Skip
 						return loopDependencies(dependencies, ++index);
 					};
-						
+
 					const conditions = (dependency.conditions || {});
-						
+
 					return doExcludes(conditions.exclude || [])
 						.then(function(ok) {
 							if (ok) {
@@ -327,22 +327,22 @@ exports.add = function add(modules) {
 							return loopDependencies(dependencies, index);
 						});
 				};
-					
+
 				let removed = false,
 					last = null;
-					
+
 				function loopScripts() {
 					if (!scripts.length) {
 						return Promise.resolve(true);
 					};
-						
+
 					if (scripts[0] === last) {
 						return Promise.resolve(false);
 					};
-						
+
 					const script = (scripts.shift() || {}),
 						dependencies = (script.dependencies || []);
-							
+
 					return loopDependencies(dependencies, 0)
 						.nodeify(function(err, ok) {
 							if (err || dependencies.length) {
@@ -367,12 +367,12 @@ exports.add = function add(modules) {
 						return ok || removed;
 					});
 			};
-				
+
 			__Internal__.loadMissings = function loadMissings(before, scripts, reload, async) {
 				const Promise = types.getPromise();
 
 				const promises = [];
-				
+
 				const loadAsync = function _loadAsync(promise, dependencyScript) {
 					return promise.then(function(url) {
 						const Promise = types.getPromise();
@@ -396,7 +396,7 @@ exports.add = function add(modules) {
 								root.DD_ASSERT && root.DD_ASSERT(types._instanceof(url, [files.Url, files.Path]), "Invalid url.");
 								root.DD_ASSERT && root.DD_ASSERT(types.isString(file), "Invalid file.");
 							};
-														
+
 							file = files.Path.parse(file, {
 								isRelative: true, // force relative
 								dirChar: ['/', '\\'],
@@ -437,7 +437,7 @@ exports.add = function add(modules) {
 								};
 							};
 						};
-													
+
 						return false;
 					});
 				};
@@ -446,7 +446,7 @@ exports.add = function add(modules) {
 					if (types.has(scripts, i)) {
 						const script = (scripts[i] || {}),
 							dependencies = (script.dependencies || []);
-							
+
 						for (let j = 0; j < dependencies.length; j++) {
 							if (types.has(dependencies, j)) {
 								const dependency = (dependencies[j] || {}),
@@ -512,7 +512,7 @@ exports.add = function add(modules) {
 					};
 				};
 			};
-				
+
 			__Internal__.areOptional = function areOptional(scripts) {
 				return !tools.some(scripts, function(script) {
 					return tools.some((script.dependencies || []), function(dependency) {
@@ -520,7 +520,7 @@ exports.add = function add(modules) {
 					});
 				});
 			};
-				
+
 			loader.ADD('loadScripts', function loadScripts(scripts, /*optional*/options) {
 				const Promise = types.getPromise();
 
@@ -529,8 +529,8 @@ exports.add = function add(modules) {
 				};
 
 				root.DD_ASSERT && root.DD_ASSERT(types.isArray(scripts), 'Invalid scripts array.');
-					
-				const reload = !!types.get(options, 'reload', false), 
+
+				const reload = !!types.get(options, 'reload', false),
 					async = !!types.get(options, 'async', __options__.defaultAsync);
 
 				__Internal__.lastEx = null;
@@ -540,7 +540,7 @@ exports.add = function add(modules) {
 					if (!scripts.length) {
 						return Promise.resolve(true);
 					};
-						
+
 					return __Internal__.initScripts(true, scripts)
 						.then(function(ok1) {
 							return __Internal__.initScripts(false, scripts)
@@ -554,7 +554,7 @@ exports.add = function add(modules) {
 							};
 
 							loader.dispatchEvent(new types.CustomEvent('waiting'));
-								
+
 							return __Internal__.loadMissings(true, scripts, reload, async)
 								.then(function(loaded1) {
 									return __Internal__.loadMissings(false, scripts, reload, async)
@@ -571,27 +571,27 @@ exports.add = function add(modules) {
 							if (err) {
 								__Internal__.lastEx = err;
 							};
-								
+
 							const ok = __Internal__.areOptional(scripts);
 							if (!ok) {
 								tools.log(tools.LogLevels.Error, "The following scripts failed to load or to initialize :");
 								__Internal__.dumpFailed(scripts);
-									
+
 								if (root.getOptions().debug) {
 									types.DEBUGGER();
 								};
-									
+
 								if (__Internal__.lastEx) {
 									throw __Internal__.lastEx;
 								};
 							};
-								
+
 							scripts.length = 0;
 
 							return false;
 						});
 				};
-					
+
 				loader.dispatchEvent(new types.CustomEvent('loading'));
 
 				return loopScripts()
@@ -601,11 +601,11 @@ exports.add = function add(modules) {
 						} else {
 							loader.dispatchEvent(new types.CustomEvent('error'));
 						};
-										
+
 						if (__Internal__.lastEx) {
 							throw __Internal__.lastEx;
 						};
-										
+
 						return done;
 					});
 			});
