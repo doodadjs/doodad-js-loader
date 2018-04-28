@@ -43,7 +43,7 @@ exports.add = function add(modules) {
 				tools = doodad.Tools,
 				files = tools.Files,
 				safeEval = tools.SafeEval;
-				//namespaces = doodad.Namespaces;
+			//namespaces = doodad.Namespaces;
 
 			//===================================
 			// Internals
