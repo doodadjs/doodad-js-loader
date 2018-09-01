@@ -3,7 +3,7 @@
   "description": "doodad-js Loader (beta)",
   "version": "0.0.0",
   "config": {
-	"Doodad__Loader": {
+	"Doodad.Loader": {
 		"defaultAsync": true
 	}
   },
